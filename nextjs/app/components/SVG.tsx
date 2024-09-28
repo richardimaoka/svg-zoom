@@ -1,12 +1,96 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+interface Point {
+  x: number;
+  y: number;
+}
+
+interface CoordSystemSize {
+  width: number;
+  height: number;
+}
+
 export function SVG() {
+  const sizes = [
+    { width: 5, height: 5 }, // 0 :  90%
+    { width: 10, height: 10 }, // 1 :  90%
+    { width: 25, height: 25 }, // 2 :  90%
+    { width: 50, height: 50 }, // 3 :  90%
+    { width: 100, height: 100 }, // 4 :  90%
+    { width: 200, height: 200 }, // 5 :  90%
+    { width: 300, height: 300 }, // 6 : 100%
+    { width: 400, height: 400 }, // 7 :
+    { width: 500, height: 500 }, // 9 :
+    { width: 600, height: 600 }, // 10:
+    { width: 700, height: 700 }, // 11:
+    { width: 800, height: 800 }, // 12:
+  ];
+  const [zoomIndex, setZoomIndex] = useState(5);
+  const userSystemSize = sizes[zoomIndex];
+  const viewportSize = { width: 800, height: 800 };
+  const center = { x: 400, y: 400 };
+  const minXY = {
+    x: center.x - userSystemSize.width / 2,
+    y: center.y - userSystemSize.height / 2,
+  };
+
+  const [isSpaceKeyDown, setSpaceKeyDown] = useState(false);
+  const [isMouseDown, setMouseDown] = useState(false);
+  const [dragStart, setDragStart] = useState<Point>({ x: 0, y: 0 });
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.code === "Space") {
+        setSpaceKeyDown(true);
+      }
+    }
+    function onKeyUp(e: KeyboardEvent) {
+      if (e.code === "Space") {
+        setSpaceKeyDown(false);
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keyup", onKeyUp);
+
+    return function () {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("keyup", onKeyUp);
+    };
+  }, []);
+
   return (
     <svg
       id="_レイヤー_1"
       data-name="レイヤー_1"
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 800 800"
-      width="800"
-      height="800"
+      viewBox={`${minXY.x} ${minXY.y} ${userSystemSize.width} ${userSystemSize.height}`}
+      width={viewportSize.width}
+      height={viewportSize.height}
+      onWheel={function (e) {
+        if (e.deltaY > 0 && zoomIndex < sizes.length - 1) {
+          setZoomIndex(zoomIndex + 1);
+        } else if (e.deltaY < 0 && zoomIndex > 0) {
+          setZoomIndex(zoomIndex - 1);
+        }
+      }}
+      onMouseDown={function (e) {
+        setMouseDown(true);
+        setDragStart({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
+      }}
+      onMouseUp={function () {
+        setMouseDown(false);
+      }}
+      onMouseMove={function (e) {
+        if (isMouseDown && isSpaceKeyDown) {
+          const diffX = e.nativeEvent.offsetX - dragStart.x;
+          const diffY = e.nativeEvent.offsetY - dragStart.y;
+
+          console.log(diffX, diffY);
+        }
+      }}
     >
       <g id="grid" fill="none" stroke="#9e9e9e" strokeMiterlimit={10}>
         <line x1="1" y1="1" x2="799" y2="1" />
