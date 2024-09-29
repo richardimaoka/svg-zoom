@@ -2,16 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-interface Point {
-  x: number;
-  y: number;
-}
-
-interface CoordSystemSize {
-  width: number;
-  height: number;
-}
-
 export function SVG() {
   const sizes = [
     { width: 5, height: 5 }, // 0 :  90%
@@ -75,9 +65,57 @@ export function SVG() {
       height={viewportSize.height}
       onWheel={function (e) {
         if (e.deltaY > 0 && zoomIndex < sizes.length - 1) {
+          const cursorPos = {
+            x:
+              minXY.x +
+              (userSystemSize.width * e.nativeEvent.offsetX) /
+                viewportSize.width,
+            y:
+              minXY.y +
+              (userSystemSize.width * e.nativeEvent.offsetY) /
+                viewportSize.height,
+          };
+
+          const newUserSystemSize = sizes[zoomIndex + 1];
+          const newMinXY = {
+            x:
+              cursorPos.x -
+              (e.nativeEvent.offsetX * newUserSystemSize.width) /
+                viewportSize.width,
+            y:
+              cursorPos.y -
+              (e.nativeEvent.offsetY * newUserSystemSize.height) /
+                viewportSize.height,
+          };
+
           setZoomIndex(zoomIndex + 1);
+          setMinXY(newMinXY);
         } else if (e.deltaY < 0 && zoomIndex > 0) {
+          const cursorPos = {
+            x:
+              minXY.x +
+              (userSystemSize.width * e.nativeEvent.offsetX) /
+                viewportSize.width,
+            y:
+              minXY.y +
+              (userSystemSize.width * e.nativeEvent.offsetY) /
+                viewportSize.height,
+          };
+
+          const newUserSystemSize = sizes[zoomIndex - 1];
+          const newMinXY = {
+            x:
+              cursorPos.x -
+              (e.nativeEvent.offsetX * newUserSystemSize.width) /
+                viewportSize.width,
+            y:
+              cursorPos.y -
+              (e.nativeEvent.offsetY * newUserSystemSize.height) /
+                viewportSize.height,
+          };
+
           setZoomIndex(zoomIndex - 1);
+          setMinXY(newMinXY);
         }
       }}
       onMouseDown={function (e) {
