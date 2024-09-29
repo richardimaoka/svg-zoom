@@ -31,21 +31,20 @@ export function SVG() {
   const userSystemSize = sizes[zoomIndex];
   const viewportSize = { width: 800, height: 800 };
 
+  const center = { x: 400, y: 400 };
+  const [minXY, setMinXY] = useState({
+    x: center.x - userSystemSize.width / 2,
+    y: center.y - userSystemSize.height / 2,
+  });
+
   const [isSpaceKeyDown, setSpaceKeyDown] = useState(false);
   const [isMouseDown, setMouseDown] = useState(false);
   const [dragStart, setDragStart] = useState({
     mouseX: 0,
     mouseY: 0,
-    centerX: 0,
-    centerY: 0,
+    minX: minXY.x,
+    minY: minXY.y,
   });
-  // TODO: dragでcenterを動かす？
-  const origin = { x: 400, y: 400 };
-  const [center, setCenter] = useState(origin);
-  const minXY = {
-    x: center.x - userSystemSize.width / 2,
-    y: center.y - userSystemSize.height / 2,
-  };
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -70,8 +69,6 @@ export function SVG() {
 
   return (
     <svg
-      id="_レイヤー_1"
-      data-name="レイヤー_1"
       xmlns="http://www.w3.org/2000/svg"
       viewBox={`${minXY.x} ${minXY.y} ${userSystemSize.width} ${userSystemSize.height}`}
       width={viewportSize.width}
@@ -88,8 +85,8 @@ export function SVG() {
         setDragStart({
           mouseX: e.nativeEvent.offsetX,
           mouseY: e.nativeEvent.offsetY,
-          centerX: center.x,
-          centerY: center.y,
+          minX: minXY.x,
+          minY: minXY.y,
         });
       }}
       onMouseUp={function () {
@@ -100,15 +97,15 @@ export function SVG() {
           const diffX = e.nativeEvent.offsetX - dragStart.mouseX;
           const diffY = e.nativeEvent.offsetY - dragStart.mouseY;
 
-          const centerX =
-            dragStart.centerX -
+          const minX =
+            dragStart.minX -
             (userSystemSize.width * diffX) / viewportSize.width;
 
-          const centerY =
-            dragStart.centerY -
-            (userSystemSize.height * diffX) / viewportSize.height;
-          setCenter({ x: centerX, y: centerY });
-          console.log(diffX, diffY, centerX, centerY);
+          const minY =
+            dragStart.minY -
+            (userSystemSize.height * diffY) / viewportSize.height;
+
+          setMinXY({ x: minX, y: minY });
         }
       }}
     >
