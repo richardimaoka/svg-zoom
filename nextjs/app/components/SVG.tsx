@@ -33,7 +33,12 @@ export function SVG() {
 
   const [isSpaceKeyDown, setSpaceKeyDown] = useState(false);
   const [isMouseDown, setMouseDown] = useState(false);
-  const [dragStart, setDragStart] = useState<Point>({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState({
+    mouseX: 0,
+    mouseY: 0,
+    centerX: 0,
+    centerY: 0,
+  });
   // TODO: dragでcenterを動かす？
   const origin = { x: 400, y: 400 };
   const [center, setCenter] = useState(origin);
@@ -80,20 +85,30 @@ export function SVG() {
       }}
       onMouseDown={function (e) {
         setMouseDown(true);
-        setDragStart({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
+        setDragStart({
+          mouseX: e.nativeEvent.offsetX,
+          mouseY: e.nativeEvent.offsetY,
+          centerX: center.x,
+          centerY: center.y,
+        });
       }}
       onMouseUp={function () {
         setMouseDown(false);
       }}
       onMouseMove={function (e) {
         if (isMouseDown && isSpaceKeyDown) {
-          const diffX = e.nativeEvent.offsetX - dragStart.x;
-          const diffY = e.nativeEvent.offsetY - dragStart.y;
-          setCenter({
-            x: center.x + (userSystemSize.width * diffX) / viewportSize.width,
-            y: center.y + (userSystemSize.height * diffX) / viewportSize.height,
-          });
-          console.log(diffX, diffY);
+          const diffX = e.nativeEvent.offsetX - dragStart.mouseX;
+          const diffY = e.nativeEvent.offsetY - dragStart.mouseY;
+
+          const centerX =
+            dragStart.centerX -
+            (userSystemSize.width * diffX) / viewportSize.width;
+
+          const centerY =
+            dragStart.centerY -
+            (userSystemSize.height * diffX) / viewportSize.height;
+          setCenter({ x: centerX, y: centerY });
+          console.log(diffX, diffY, centerX, centerY);
         }
       }}
     >
