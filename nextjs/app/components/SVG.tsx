@@ -30,15 +30,17 @@ export function SVG() {
   const [zoomIndex, setZoomIndex] = useState(5);
   const userSystemSize = sizes[zoomIndex];
   const viewportSize = { width: 800, height: 800 };
-  const center = { x: 400, y: 400 };
-  const minXY = {
-    x: center.x - userSystemSize.width / 2,
-    y: center.y - userSystemSize.height / 2,
-  };
 
   const [isSpaceKeyDown, setSpaceKeyDown] = useState(false);
   const [isMouseDown, setMouseDown] = useState(false);
   const [dragStart, setDragStart] = useState<Point>({ x: 0, y: 0 });
+  // TODO: dragでcenterを動かす？
+  const origin = { x: 400, y: 400 };
+  const [center, setCenter] = useState(origin);
+  const minXY = {
+    x: center.x - userSystemSize.width / 2,
+    y: center.y - userSystemSize.height / 2,
+  };
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -87,7 +89,10 @@ export function SVG() {
         if (isMouseDown && isSpaceKeyDown) {
           const diffX = e.nativeEvent.offsetX - dragStart.x;
           const diffY = e.nativeEvent.offsetY - dragStart.y;
-
+          setCenter({
+            x: center.x + (userSystemSize.width * diffX) / viewportSize.width,
+            y: center.y + (userSystemSize.height * diffX) / viewportSize.height,
+          });
           console.log(diffX, diffY);
         }
       }}
